@@ -27,8 +27,8 @@ public class FTPDownloadAndUpload
         string ftpPassword = "Dm&XxeaRN+1Y";
 
         //// Paths for original FTP downloads
-        string ftpBaseUri1 = "ftp://sunway-ttss.northeurope.cloudapp.azure.com/CalendarFiles/Paxport/";
-        string ftpBaseUri2 = "ftp://sunway-ttss.northeurope.cloudapp.azure.com/CalendarFiles/Ryanair/";
+        string ftpBaseUri1 = "ftp://sunway-ttss.northeurope.cloudapp.azure.com/CalendarFiles/Paxport/PaxPort/";
+        string ftpBaseUri2 = "ftp://sunway-ttss.northeurope.cloudapp.azure.com/CalendarFiles/Ryanair/RyanairTTSS/";
 
         string paxFileToDownload = "paxcache-sunway.csv.gz";
         string ryanairFileToDownload = "ttss-ie-ryanair-returns.csv.gz";
@@ -213,7 +213,44 @@ public class FTPDownloadAndUpload
                 string modifiedContent = sourceContent.Replace("RYAN", "RYR");
                 File.AppendAllText(destinationFile, modifiedContent);
 
-                Console.WriteLine($"Modified contents of {sourceFile} appended to {destinationFile}.");
+
+
+
+                //Console.WriteLine($"Modified contents of {sourceFile} appended to {destinationFile}.");
+
+                //string destinationFileString = File.ReadAllText(destinationFile);
+
+                try
+                {
+                    string[] lines = File.ReadAllLines(destinationFile);
+
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        string[] _line = lines[i].Split(",");
+                        string sanitizedString = _line[67].Trim('"');
+                        if (_line[6] != _line[7])
+                        {
+                            if (int.TryParse(sanitizedString, out int number))
+                            {
+                                if(number != 0)
+                                {
+                                    number += 1;
+                                    string updatedString = $"\"{number}\"";
+                                    _line[67] = updatedString;
+                                }                                
+                            }
+                        }
+
+
+                        //Console.WriteLine(line); // Process each line as needed
+                    }
+                    File.WriteAllLines(destinationFile, lines);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+
             }
             else
             {
