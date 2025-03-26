@@ -79,7 +79,7 @@ public class FTPDownloadAndUpload
                 string paxFtpPassword = "Xuox0eazJoow4ge8";
 
                 // Step 6: Upload the final .gz file to a different FTP server
-                string paxDestinationFtpUri = "ftp://ftp.multicom.co.uk/dev/testupload/paxcache-sunway.csv.gz";
+                string paxDestinationFtpUri = "ftp://ftp.multicom.co.uk/upload/paxcache-sunway.csv.gz";
 
 
                 bool uploadSuccess = await UploadFileToFTP(finalCompressedFile, paxDestinationFtpUri, paxFtpUserID, paxFtpPassword);
@@ -219,12 +219,11 @@ public class FTPDownloadAndUpload
                 //Console.WriteLine($"Modified contents of {sourceFile} appended to {destinationFile}.");
 
                 //string destinationFileString = File.ReadAllText(destinationFile);
-
+                int i = 0;
                 try
                 {
                     string[] lines = File.ReadAllLines(destinationFile);
-
-                    for (int i = 0; i < lines.Length; i++)
+                    for (i = 0; i < lines.Length; i++)
                     {
                         string[] _line = lines[i].Split(",");
                         string sanitizedString = _line[67].Trim('"');
@@ -237,6 +236,7 @@ public class FTPDownloadAndUpload
                                     number += 1;
                                     string updatedString = $"\"{number}\"";
                                     _line[67] = updatedString;
+                                    lines[i] = string.Join(",", _line);
                                 }                                
                             }
                         }
