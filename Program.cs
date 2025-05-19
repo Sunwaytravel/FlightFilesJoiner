@@ -33,8 +33,8 @@ public class FTPDownloadAndUpload
         string paxFileToDownload = "paxcache-sunway.csv.gz";
         string ryanairFileToDownload = "ttss-ie-ryanair-returns.csv.gz";
 
-        string localPath1 = @"D:\flights\paxcache-sunway.csv.gz";
-        string localPath2 = @"D:\flights\ttss-ie-ryanair-returns.csv.gz";
+        string localPath1 = @"E:\projects\flightsjoiner\flights\paxcache-sunway.csv.gz";
+        string localPath2 = @"E:\projects\flightsjoiner\flights\ttss-ie-ryanair-returns.csv.gz";
 
 
         try
@@ -66,20 +66,20 @@ public class FTPDownloadAndUpload
 
             //AddDiscreetFares(extractedFile1);
             // Step 4: Compress the final combined file into .gz
-            string compressToPath = "D:\\flights\\final\\paxcache-sunway.csv";
+            string compressToPath = "E:\\projects\\flightsjoiner\\flights\\final\\paxcache-sunway.csv";
             string finalCompressedFile = CompressToGzip(extractedFile1, compressToPath);
 
             // Step 5: Upload the final .gz file to a different FTP server
             // Step 5: Create the completed file if compression was successful
-            if (File.Exists(finalCompressedFile))
+            if (File.Exists(localPath1))
             {
-                string completedFile = finalCompressedFile + ".completed";
+                string completedFile = localPath1 + ".completed";
                 File.Create(completedFile).Dispose(); // Creates the .completed file
                 string paxFtpUserID = "sunway";
                 string paxFtpPassword = "Xuox0eazJoow4ge8";
 
                 // Step 6: Upload the final .gz file to a different FTP server
-                string paxDestinationFtpUri = "ftp://ftp.multicom.co.uk/dev/testupload/paxcache-sunway.csv.gz";
+                string paxDestinationFtpUri = "ftp://ftp.multicom.co.uk/upload/paxcache-sunway.csv.gz";
 
 
                 bool uploadSuccess = await UploadFileToFTP(finalCompressedFile, paxDestinationFtpUri, paxFtpUserID, paxFtpPassword);
@@ -214,17 +214,11 @@ public class FTPDownloadAndUpload
                 File.AppendAllText(destinationFile, modifiedContent);
 
 
-
-
-                //Console.WriteLine($"Modified contents of {sourceFile} appended to {destinationFile}.");
-
-                //string destinationFileString = File.ReadAllText(destinationFile);
-
+                int i = 0;
                 try
                 {
                     string[] lines = File.ReadAllLines(destinationFile);
-
-                    for (int i = 0; i < lines.Length; i++)
+                    for (i = 0; i < lines.Length; i++)
                     {
                         string[] _line = lines[i].Split(",");
                         string sanitizedString = _line[67].Trim('"');
@@ -232,12 +226,13 @@ public class FTPDownloadAndUpload
                         {
                             if (int.TryParse(sanitizedString, out int number))
                             {
-                                if(number != 0)
+                                if (number != 0)
                                 {
                                     number += 1;
                                     string updatedString = $"\"{number}\"";
                                     _line[67] = updatedString;
-                                }                                
+                                    lines[i] = string.Join(",", _line);
+                                }
                             }
                         }
 
@@ -368,7 +363,7 @@ public class FTPDownloadAndUpload
             reqFTP.Method = WebRequestMethods.Ftp.UploadFile;
             reqFTP.UseBinary = true;
             reqFTP.Proxy = null;
-            reqFTP.UsePassive = false;
+            reqFTP.UsePassive = true;
 
             using FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             using Stream requestStream = await reqFTP.GetRequestStreamAsync();
